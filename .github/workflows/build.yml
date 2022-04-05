@@ -1,0 +1,76 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: coursier/cache-action@v6
+      - uses: olafurpg/setup-scala@v13
+
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+
+      - uses: actions/cache@v3
+        name: Cache node_modules
+        with:
+          path: "node_modules"
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node_modules
+
+      - uses: actions/cache@v3
+        name: Cache scalajs-bundler node_modules
+        with:
+          path: "*/target/**/main/node_modules"
+          key: ${{ runner.os }}-scalajsbundler-node_modules-${{ hashFiles('*/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-scalajsbundler-node_modules
+
+      - name: Cache Scalablytyped transpilations
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ivy2/local/org.scalablytyped
+            ~/.cache/scalablytyped
+          key: ${{ runner.os }}-scalablytyped-${{ hashfiles('build.sbt') }}-${{ hashFiles('*/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-scalablytyped-
+
+
+
+
+
+      - name: Compile and Bundle
+        run: |
+          # Runner has 7G of RAM, so 4G for sbt is ok here:
+          # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+          sbt --mem 4096 scalafmtCheck scalafmtSbtCheck compile webapp/{fast,full}OptJS/webpack
+
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: outwatch-example/webapp/target/scala-2.13/scalajs-bundler/main/dist # The folder the action should deploy.
+
+      # - name: Debug over SSH (tmate)
+      #   # if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3
+      #   with:
+      #     limit-access-to-actor: true
