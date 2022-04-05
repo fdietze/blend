@@ -37,9 +37,9 @@ lazy val webapp = project
   .settings(scalaJsMacrotaskExecutor)
   .settings(
     libraryDependencies          ++= Seq(
-      "io.github.outwatch"     %%% "outwatch"                 % versions.outwatch,
-      "io.github.outwatch"     %%% "outwatch-util"            % versions.outwatch,
-      "org.scalatest"          %%% "scalatest"                % versions.scalaTest % Test,
+      "io.github.outwatch" %%% "outwatch"      % versions.outwatch,
+      "io.github.outwatch" %%% "outwatch-util" % versions.outwatch,
+      "org.scalatest"      %%% "scalatest"     % versions.scalaTest % Test,
     ),
     Compile / npmDependencies    ++= readJsDependencies(baseDirectory.value, "dependencies") ++ Seq(
       "snabbdom" -> "github:outwatch/snabbdom.git#semver:0.7.5", // for outwatch, workaround for: https://github.com/ScalablyTyped/Converter/issues/293
