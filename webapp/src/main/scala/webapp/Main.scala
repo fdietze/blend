@@ -21,13 +21,12 @@ object Main {
     val dmp  = new diffMatchPatch();
     val diff = dmp.diff_main("dogs bark", "cats bark")
 
-    val rawConflict = Subject.behavior("""
-<<<<<<< ours
-  puts 'hola world'
+    val rawConflict = Subject.behavior("""<<<<<<< ours
+puts 'hola world'
 ||||||| base
-  puts 'hello world'
+puts 'hello world'
 =======
-  puts 'hello mundo'
+puts 'hello mundo'
 >>>>>>> theirs
 """)
 
@@ -35,9 +34,10 @@ object Main {
 
     div(
       textArea(
-        rows := 10,
+        rows  := 10,
         value <-- rawConflict,
         onInput.value --> rawConflict,
+        width := "100%",
       ),
       // div(rawConflict.map(ConflictParser.apply).map(_.toString)),
       managedFunction(() =>
@@ -54,10 +54,14 @@ object Main {
         val patchesB = dmp.patch_make(conflict.base, conflict.b)
         val result   = dmp.patch_apply(patchesA ++ patchesB, conflict.base)
         div(
-          div(result(0)),
-          Diff(conflict.base, conflict.a),
-          Diff(conflict.base, conflict.b),
-          Diff(conflict.base, result(0)),
+          "merged result:",
+          pre(result(0)),
+          "final diff:",
+          div(Diff(conflict.base, result(0)), fontFamily  := "monospace", whiteSpace.pre),
+          "first diff:",
+          div(Diff(conflict.base, conflict.a), fontFamily := "monospace", whiteSpace.pre),
+          "second diff:",
+          div(Diff(conflict.base, conflict.b), fontFamily := "monospace", whiteSpace.pre),
         )
       },
     )
