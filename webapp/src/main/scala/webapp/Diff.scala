@@ -12,8 +12,8 @@ object Diff {
         .map(part =>
           span(
             part.value,
-            cls := (if (part.added.getOrElse(false)) "text-green-400"
-                    else if (part.removed.getOrElse(false)) "text-red-400"
+            cls := (if (part.added.getOrElse(false)) "text-green-500"
+                    else if (part.removed.getOrElse(false)) "text-red-500"
                     else ""),
           ),
         ),
