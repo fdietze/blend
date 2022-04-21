@@ -54,63 +54,111 @@ puts 'hello mundo'
     div(
       cls := "p-4",
       div(
-        cls := "flex flex-wrap",
         textArea(
           rows := 10,
           value <-- rawConflict,
           onInput.value --> rawConflict,
           cls  := "font-mono p-2",
-          cls  := "flex-1 border-2 border-blue-400 rounded-lg",
+          cls  := "w-full border-2 border-blue-400 rounded-lg",
         ),
-        conflict.map {
-          case Right(conflict) =>
-            val codeStyle = cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre-wrap"
-            div(
-              cls := "ml-4 flex-1",
-              b(s"${conflict.aName}"),
-              " diff:",
-              div(Diff(conflict.base, conflict.a), codeStyle),
-              b(s"${conflict.bName}"),
-              " diff:",
-              div(Diff(conflict.base, conflict.b), codeStyle),
-            )
-          case Left(error)     => VDomModifier.empty
-        },
       ),
       merged.map {
         case Right((conflict, mergedResult)) =>
-          val codeStyle = cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre-wrap font-mono"
+          def showCode(
+            codeRendered: VDomModifier,
+            description: VDomModifier = VDomModifier.empty,
+            codeStr: Option[String] = None,
+            codeModifiers: VDomModifier = VDomModifier.empty,
+          ) =
+            div(
+              div(
+                cls := "flex",
+                div(description, cls := "mr-auto whitespace-nowrap"),
+                codeStr.map(copyButton),
+              ),
+              pre(
+                code(codeRendered),
+                cls := "overflow-x-auto",
+                cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre font-mono",
+                codeModifiers,
+              ),
+            )
+
           div(
             div(
-              cls := "flex mt-4",
-              div("merged result:", cls := "mr-auto"),
-              VDomModifier.ifTrue(canWriteClipboard)(
-                button(
-                  title := "Copy to Clipboard",
-                  cls   := "cursor-pointer",
-                  onClick.foreach {
-                    navigator.clipboard.writeText(mergedResult)
-                  },
-                  "copy",
-                  cls   := "btn btn-sm text-white bg-blue-400 rounded",
-                ),
+              cls := "flex",
+              showCode(conflict.a, b(conflict.aName), Some(conflict.a), cls := "bg-blue-100")(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+              showCode(conflict.base, b(conflict.baseName), Some(conflict.base))(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+              showCode(conflict.b, b(conflict.bName), Some(conflict.b), cls := "bg-violet-100")(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
               ),
             ),
-            pre(
-              code(mergedResult),
-              codeStyle,
+            div(
+              cls := "flex",
+              showCode(
+                Diff(conflict.base, conflict.a),
+                VDomModifier(b(conflict.aName), " diff ", b(conflict.baseName)),
+              )(
+                cls                                                    := "flex-1 m-1",
+                minWidth                                               := "0px",
+              ),
+              showCode(mergedResult, "merged", Some(mergedResult))(cls := "flex-1 m-1", minWidth := "0px"),
+              showCode(
+                Diff(conflict.base, conflict.b),
+                VDomModifier(b(conflict.bName), " diff ", b(conflict.baseName)),
+              )(
+                cls                                                    := "flex-1 m-1",
+                minWidth                                               := "0px",
+              ),
             ),
-            "merged diff:",
-            div(Diff(conflict.base, mergedResult), codeStyle),
-            s"merged diff against ",
-            b(s"${conflict.aName}:"),
-            div(Diff(conflict.a, mergedResult), codeStyle),
-            s"merged diff against ",
-            b(s"${conflict.bName}:"),
-            div(Diff(conflict.b, mergedResult), codeStyle),
+            div(
+              cls := "flex",
+              showCode(
+                Diff(conflict.b, mergedResult),
+                VDomModifier(b("merged"), " diff ", b(conflict.bName)),
+                codeModifiers = cls := "bg-violet-100",
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+              showCode(Diff(conflict.base, mergedResult), VDomModifier(b("merged"), " diff ", b(conflict.baseName)))(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+              showCode(
+                Diff(conflict.a, mergedResult),
+                VDomModifier(b("merged"), " diff ", b(conflict.aName)),
+                codeModifiers = cls := "bg-blue-100",
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+            ),
           )
         case Left(error)                     => div(error.getMessage)
       },
     )
+  }
+
+  def copyButton(value: String) = {
+
+    VDomModifier.ifTrue(canWriteClipboard)(
+      button(
+        title := "Copy to Clipboard",
+        cls   := "cursor-pointer",
+        onClick.foreach {
+          navigator.clipboard.writeText(value)
+        },
+        "copy",
+        cls   := "btn btn-xs text-white bg-blue-400 rounded",
+      ),
+    ),
   }
 }
