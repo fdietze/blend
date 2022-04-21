@@ -9,7 +9,6 @@ https://fdietze.github.io/blend
 
 Please make sure that the following software is installed:
 
- - [sbt](https://www.scala-sbt.org)
  - [Node.js](https://nodejs.org/en/download/)
  - [Yarn](https://yarnpkg.com/en/docs/install)
  - [Sbt](https://www.scala-sbt.org/download.html)
