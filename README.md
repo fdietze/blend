@@ -7,11 +7,12 @@ https://fdietze.github.io/blend
 ## Development
 ### Prerequisites
 
-You should make sure that the following components are pre-installed on your machine:
+Please make sure that the following software is installed:
 
  - [sbt](https://www.scala-sbt.org)
  - [Node.js](https://nodejs.org/en/download/)
  - [Yarn](https://yarnpkg.com/en/docs/install)
+ - [Sbt](https://www.scala-sbt.org/download.html)
 
 ### Local Development
 

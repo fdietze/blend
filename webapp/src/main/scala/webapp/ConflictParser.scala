@@ -23,20 +23,24 @@ object ConflictParser {
 >>>>>>> theirs
    */
 
-  val c = new js.RegExp(
-    raw"""^.*<<<<<<< .*
-([\s\S]*)
-\|\|\|\|\|\|\| .*
-([\s\S]*)
-=======.*
-([\s\S]*)
->>>>>>> .*$$""",
+  val pattern = new js.RegExp(
+    raw"""^.*<<<<<<< (.*)
+([\s\S]*)\|\|\|\|\|\|\| (.*)
+([\s\S]*)=======
+([\s\S]*)>>>>>>> (.*)$$""",
     "m",
   )
 
   def apply(str: String) = scala.util.Try {
-    val matches = str.`match`(c)
-    Conflict(base = matches(2), a = matches(1), b = matches(3))
-  }
+    val matches = str.`match`(pattern)
+    Conflict(
+      base = matches(4),
+      baseName = matches(3),
+      a = matches(2),
+      aName = matches(1),
+      b = matches(5),
+      bName = matches(6),
+    )
+  }.toEither.left.map(_ => new Exception("Could not parse git conflict"))
 
 }
