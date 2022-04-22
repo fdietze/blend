@@ -11,6 +11,7 @@ import typings.diffMatchPatch.mod._
 import scala.util.Success
 import scala.util.Failure
 import scala.util.Try
+import org.scalajs.dom.HTMLElement
 
 case class Conflict(base: String, baseName: String, a: String, aName: String, b: String, bName: String)
 
@@ -31,8 +32,9 @@ object Main {
   }
 
   def app = {
-    val dmp  = new diffMatchPatch();
-    val diff = dmp.diff_main("dogs bark", "cats bark")
+    val dmp       = new diffMatchPatch();
+    val diff      = dmp.diff_main("dogs bark", "cats bark")
+    val scrollPos = Subject.behavior(0.0)
 
     val rawConflict = Subject.behavior("""<<<<<<< ours
 puts 'hola world'
@@ -65,39 +67,30 @@ puts 'hello mundo'
       ),
       merged.map {
         case Right((conflict, mergedResult)) =>
-          def showCode(
-            codeRendered: VDomModifier,
-            description: VDomModifier = VDomModifier.empty,
-            codeStr: Option[String] = None,
-            codeModifiers: VDomModifier = VDomModifier.empty,
-          ) =
-            div(
-              div(
-                cls := "flex",
-                div(description, cls := "mr-auto whitespace-nowrap"),
-                codeStr.map(copyButton),
-              ),
-              pre(
-                code(codeRendered),
-                cls := "overflow-x-auto",
-                cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre font-mono",
-                cls := "dark:bg-gray-900 dark:text-slate-100",
-                codeModifiers,
-              ),
-            )
-
           div(
             div(
               cls := "flex",
-              showCode(conflict.a, b(conflict.aName), Some(conflict.a), cls := "bg-blue-100 dark:bg-blue-900")(
+              showCode(
+                conflict.a,
+                b(conflict.aName),
+                Some(conflict.a),
+                scrollPos,
+                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900",
+              )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
-              showCode(conflict.base, b(conflict.baseName), Some(conflict.base))(
+              showCode(conflict.base, b(conflict.baseName), Some(conflict.base), scrollPos)(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
-              showCode(conflict.b, b(conflict.bName), Some(conflict.b), cls := "bg-violet-100 dark:bg-violet-900")(
+              showCode(
+                conflict.b,
+                b(conflict.bName),
+                Some(conflict.b),
+                scrollPos,
+                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900",
+              )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
@@ -107,17 +100,22 @@ puts 'hello mundo'
               showCode(
                 Diff(conflict.base, conflict.a),
                 VDomModifier(b(conflict.aName), " diff ", b(conflict.baseName)),
+                scrollPos = scrollPos,
               )(
-                cls                                                    := "flex-1 m-1",
-                minWidth                                               := "0px",
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
               ),
-              showCode(mergedResult, "merged", Some(mergedResult))(cls := "flex-1 m-1", minWidth := "0px"),
+              showCode(mergedResult, "merged", Some(mergedResult), scrollPos = scrollPos)(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
               showCode(
                 Diff(conflict.base, conflict.b),
                 VDomModifier(b(conflict.bName), " diff ", b(conflict.baseName)),
+                scrollPos = scrollPos,
               )(
-                cls                                                    := "flex-1 m-1",
-                minWidth                                               := "0px",
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
               ),
             ),
             div(
@@ -125,18 +123,24 @@ puts 'hello mundo'
               showCode(
                 Diff(conflict.b, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.bName)),
+                scrollPos = scrollPos,
                 codeModifiers = cls := "bg-violet-100 dark:bg-violet-900",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
-              showCode(Diff(conflict.base, mergedResult), VDomModifier(b("merged"), " diff ", b(conflict.baseName)))(
+              showCode(
+                Diff(conflict.base, mergedResult),
+                VDomModifier(b("merged"), " diff ", b(conflict.baseName)),
+                scrollPos = scrollPos,
+              )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
               showCode(
                 Diff(conflict.a, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.aName)),
+                scrollPos = scrollPos,
                 codeModifiers = cls := "bg-blue-100 dark:bg-blue-900",
               )(
                 cls      := "flex-1 m-1",
@@ -145,6 +149,56 @@ puts 'hello mundo'
             ),
           )
         case Left(error)                     => div(error.getMessage)
+      },
+    )
+  }
+
+  def showCode(
+    codeRendered: VDomModifier,
+    description: VDomModifier = VDomModifier.empty,
+    codeStr: Option[String] = None,
+    scrollPos: Subject[Double] = Subject.behavior(0.0),
+    codeModifiers: VDomModifier = VDomModifier.empty,
+  ) = {
+    div(
+      div(
+        cls := "flex",
+        div(description, cls := "mr-auto whitespace-nowrap text-ellipsis overflow-hidden"),
+        codeStr.map(copyButton),
+      ),
+      pre(
+        code(codeRendered),
+        cls := "overflow-x-auto",
+        syncedScrollPos(scrollPos),
+        cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre font-mono",
+        cls := "dark:bg-gray-900 dark:text-slate-100",
+        codeModifiers,
+      ),
+    )
+  }
+
+  def syncedScrollPos(scrollPos: Subject[Double]) = {
+    var ignoreNextScrollEvent = false
+    VDomModifier(
+      onScroll.filter { e =>
+        val ignore = ignoreNextScrollEvent
+        ignoreNextScrollEvent = false
+        !ignore
+      }.map { e =>
+        val target = e.target.asInstanceOf[HTMLElement]
+        // println(s"out: ${target.scrollLeft} / ${(target.scrollWidth - target.clientWidth + 1)}")
+        target.scrollLeft / (target.scrollWidth - target.clientWidth + 1)
+      } --> scrollPos,
+      managedElement.asHtml { target =>
+        scrollPos.foreach { pos =>
+          val newScrollLeft = (target.scrollWidth - target.clientWidth + 1) * pos
+          if (newScrollLeft != target.scrollLeft) {
+            // println("SET " + newScrollLeft)
+            ignoreNextScrollEvent = true
+            target.scrollLeft = newScrollLeft
+          }
+        // target.scrollLeft = (target.scrollWidth - target.clientWidth + 1) * pos
+        }
       },
     )
   }
