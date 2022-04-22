@@ -75,7 +75,7 @@ puts 'hello mundo'
                 b(conflict.aName),
                 Some(conflict.a),
                 scrollPos,
-                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900",
+                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -89,7 +89,7 @@ puts 'hello mundo'
                 b(conflict.bName),
                 Some(conflict.b),
                 scrollPos,
-                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900",
+                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -124,7 +124,7 @@ puts 'hello mundo'
                 Diff(conflict.b, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.bName)),
                 scrollPos = scrollPos,
-                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900",
+                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -141,7 +141,7 @@ puts 'hello mundo'
                 Diff(conflict.a, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.aName)),
                 scrollPos = scrollPos,
-                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900",
+                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
