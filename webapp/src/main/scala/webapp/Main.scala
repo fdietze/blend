@@ -60,6 +60,7 @@ puts 'hello mundo'
           onInput.value --> rawConflict,
           cls  := "font-mono p-2",
           cls  := "w-full border-2 border-blue-400 rounded-lg",
+          cls  := "dark:bg-slate-900 dark:text-slate-100",
         ),
       ),
       merged.map {
@@ -80,6 +81,7 @@ puts 'hello mundo'
                 code(codeRendered),
                 cls := "overflow-x-auto",
                 cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre font-mono",
+                cls := "dark:bg-gray-900 dark:text-slate-100",
                 codeModifiers,
               ),
             )
@@ -87,7 +89,7 @@ puts 'hello mundo'
           div(
             div(
               cls := "flex",
-              showCode(conflict.a, b(conflict.aName), Some(conflict.a), cls := "bg-blue-100")(
+              showCode(conflict.a, b(conflict.aName), Some(conflict.a), cls := "bg-blue-100 dark:bg-blue-900")(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
@@ -95,7 +97,7 @@ puts 'hello mundo'
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
-              showCode(conflict.b, b(conflict.bName), Some(conflict.b), cls := "bg-violet-100")(
+              showCode(conflict.b, b(conflict.bName), Some(conflict.b), cls := "bg-violet-100 dark:bg-violet-900")(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
@@ -123,7 +125,7 @@ puts 'hello mundo'
               showCode(
                 Diff(conflict.b, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.bName)),
-                codeModifiers = cls := "bg-violet-100",
+                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -135,7 +137,7 @@ puts 'hello mundo'
               showCode(
                 Diff(conflict.a, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.aName)),
-                codeModifiers = cls := "bg-blue-100",
+                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -157,7 +159,7 @@ puts 'hello mundo'
           navigator.clipboard.writeText(value)
         },
         "copy",
-        cls   := "btn btn-xs text-white bg-blue-400 rounded",
+        cls   := "btn btn-xs text-white bg-blue-500 rounded",
       ),
     ),
   }
