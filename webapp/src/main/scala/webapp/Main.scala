@@ -75,7 +75,7 @@ puts 'hello mundo'
                 b(conflict.aName),
                 Some(conflict.a),
                 scrollPos,
-                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900/50",
+                colorClasses = "bg-blue-100 dark:bg-blue-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -89,7 +89,7 @@ puts 'hello mundo'
                 b(conflict.bName),
                 Some(conflict.b),
                 scrollPos,
-                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900/50",
+                colorClasses = "bg-violet-100 dark:bg-violet-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -124,7 +124,7 @@ puts 'hello mundo'
                 Diff(conflict.b, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.bName)),
                 scrollPos = scrollPos,
-                codeModifiers = cls := "bg-violet-100 dark:bg-violet-900/50",
+                colorClasses = "bg-violet-100 dark:bg-violet-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -141,7 +141,7 @@ puts 'hello mundo'
                 Diff(conflict.a, mergedResult),
                 VDomModifier(b("merged"), " diff ", b(conflict.aName)),
                 scrollPos = scrollPos,
-                codeModifiers = cls := "bg-blue-100 dark:bg-blue-900/50",
+                colorClasses = "bg-blue-100 dark:bg-blue-900/50",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -158,7 +158,7 @@ puts 'hello mundo'
     description: VDomModifier = VDomModifier.empty,
     codeStr: Option[String] = None,
     scrollPos: Subject[Double] = Subject.behavior(0.0),
-    codeModifiers: VDomModifier = VDomModifier.empty,
+    colorClasses: String = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100",
   ) = {
     div(
       div(
@@ -170,9 +170,8 @@ puts 'hello mundo'
         code(codeRendered),
         cls := "overflow-x-auto",
         syncedScrollPos(scrollPos),
-        cls := "bg-gray-100 rounded-lg p-4 mt-2 whitespace-pre font-mono",
-        cls := "dark:bg-gray-900 dark:text-slate-100",
-        codeModifiers,
+        cls := "rounded-lg p-4 mt-2 whitespace-pre font-mono",
+        cls := colorClasses,
       ),
     )
   }
