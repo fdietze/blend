@@ -43,3 +43,6 @@ bin/
 
 #general
 *.class
+
+# npm
+node_modules/
