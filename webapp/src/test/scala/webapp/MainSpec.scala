@@ -8,11 +8,11 @@ import cats.effect.IO
 
 class WebappSpec extends JSDomSpec {
 
-  "You" should "probably add some tests" in {
+  // "You" should "probably add some tests" in {
 
-    val message = "Hello World!"
-    OutWatch.renderInto[IO]("#app", h1(message)).unsafeRunSync()
+  //   val message = "Hello World!"
+  //   OutWatch.renderInto[IO]("#app", h1(message)).unsafeRunSync()
 
-    document.body.innerHTML.contains(message) shouldBe true
-  }
+  //   document.body.innerHTML.contains(message) shouldBe true
+  // }
 }
