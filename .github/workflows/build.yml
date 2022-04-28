@@ -61,7 +61,7 @@ jobs:
         run: |
           # Runner has 7G of RAM, so 4G for sbt is ok here:
           # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-          sbt --mem 4096 scalafmtCheck scalafmtSbtCheck compile webapp/{fast,full}OptJS/webpack
+          sbt --mem 4096 scalafmtCheck scalafmtSbtCheck compile test webapp/{fast,full}OptJS/webpack
 
       - name: Deploy to Github Pages
         if: github.ref == 'refs/heads/main'

@@ -67,7 +67,7 @@ lazy val webapp = project
       .LibraryOnly(), // https://scalacenter.github.io/scalajs-bundler/cookbook.html#performance
     fastOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack.config.dev.js"),
     fullOptJS / webpackConfigFile := Some(baseDirectory.value / "webpack.config.prod.js"),
-    Test / requireJsDomEnv        := true,
+    /* Test / requireJsDomEnv        := true, */
   )
 
 addCommandAlias("prod", "fullOptJS/webpack")
