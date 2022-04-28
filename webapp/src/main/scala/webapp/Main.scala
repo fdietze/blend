@@ -99,7 +99,7 @@ puts 'hello mundo'
               cls := "flex",
               showCode(
                 Diff(conflict.base, conflict.a),
-                VDomModifier(b(conflict.aName), " diff ", b(conflict.baseName)),
+                VDomModifier(b(conflict.baseName), " → ", b(conflict.aName)),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -111,7 +111,7 @@ puts 'hello mundo'
               ),
               showCode(
                 Diff(conflict.base, conflict.b),
-                VDomModifier(b(conflict.bName), " diff ", b(conflict.baseName)),
+                VDomModifier(b(conflict.baseName), " → ", b(conflict.bName)),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -122,7 +122,7 @@ puts 'hello mundo'
               cls := "flex",
               showCode(
                 Diff(conflict.b, mergedResult),
-                VDomModifier(b("merged"), " diff ", b(conflict.bName)),
+                VDomModifier(b(conflict.bName), " → ", b("merged")),
                 scrollPos = scrollPos,
                 colorClasses = "bg-violet-100 dark:bg-violet-900/50",
               )(
@@ -131,7 +131,7 @@ puts 'hello mundo'
               ),
               showCode(
                 Diff(conflict.base, mergedResult),
-                VDomModifier(b("merged"), " diff ", b(conflict.baseName)),
+                VDomModifier(b(conflict.baseName), " → ", b("merged")),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -139,7 +139,7 @@ puts 'hello mundo'
               ),
               showCode(
                 Diff(conflict.a, mergedResult),
-                VDomModifier(b("merged"), " diff ", b(conflict.aName)),
+                VDomModifier(b(conflict.aName), " → ", b("merged")),
                 scrollPos = scrollPos,
                 colorClasses = "bg-blue-100 dark:bg-blue-900/50",
               )(
