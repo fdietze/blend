@@ -105,7 +105,13 @@ x = foo + otherNumber
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
-              showCode(mergedResult, "merged", Some(mergedResult), scrollPos = scrollPos)(
+              showCode(
+                mergedResult,
+                "merged",
+                Some(mergedResult),
+                scrollPos = scrollPos,
+                colorClasses = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100 border-2 border-neutral",
+              )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
@@ -122,7 +128,7 @@ x = foo + otherNumber
               cls := "flex",
               showCode(
                 Diff(conflict.b, mergedResult),
-                VDomModifier(b(conflict.bName), " → ", b("merged")),
+                VDomModifier(b(conflict.bName), " → ", "merged"),
                 scrollPos = scrollPos,
                 colorClasses = "bg-violet-100 dark:bg-violet-900/50",
               )(
@@ -131,7 +137,7 @@ x = foo + otherNumber
               ),
               showCode(
                 Diff(conflict.base, mergedResult),
-                VDomModifier(b(conflict.baseName), " → ", b("merged")),
+                VDomModifier(b(conflict.baseName), " → ", "merged"),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -139,7 +145,7 @@ x = foo + otherNumber
               ),
               showCode(
                 Diff(conflict.a, mergedResult),
-                VDomModifier(b(conflict.aName), " → ", b("merged")),
+                VDomModifier(b(conflict.aName), " → ", "merged"),
                 scrollPos = scrollPos,
                 colorClasses = "bg-blue-100 dark:bg-blue-900/50",
               )(
