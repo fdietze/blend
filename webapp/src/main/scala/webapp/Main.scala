@@ -37,11 +37,11 @@ object Main {
     val scrollPos = Subject.behavior(0.0)
 
     val rawConflict = Subject.behavior("""<<<<<<< ours
-puts 'hola world'
+x = myNumber + foo
 ||||||| base
-puts 'hello world'
+x = foo + myNumber
 =======
-puts 'hello mundo'
+x = foo + otherNumber
 >>>>>>> theirs
 """)
     val conflict    = rawConflict.map(ConflictParser.apply)
@@ -203,7 +203,6 @@ puts 'hello mundo'
   }
 
   def copyButton(value: String) = {
-
     VDomModifier.ifTrue(canWriteClipboard)(
       button(
         title := "Copy to Clipboard",
