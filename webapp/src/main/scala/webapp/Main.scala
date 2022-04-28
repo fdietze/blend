@@ -212,7 +212,7 @@ puts 'hello mundo'
           navigator.clipboard.writeText(value)
         },
         "copy",
-        cls   := "btn btn-xs text-white bg-blue-500 rounded",
+        cls   := "btn btn-xs bg-transparent text-base-content hover:text-secondary-content border-1 border-base-content rounded",
       ),
     ),
   }
