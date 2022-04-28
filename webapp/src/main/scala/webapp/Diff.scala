@@ -2,13 +2,14 @@ package webapp
 
 import outwatch._
 import outwatch.dsl._
-import typings.diff.mod.diffChars
-import typings.diff.mod.diffWords
+import typings.diff.mod._
+
+// https://github.com/kpdecker/jsdiff
 
 object Diff {
   def apply(original: String, result: String) = {
     p(
-      diffWords(original, result)
+      diffWordsWithSpace(original, result)
         .map(part =>
           span(
             part.value,
