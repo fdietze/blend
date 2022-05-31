@@ -4,7 +4,7 @@ import scala.scalajs.js
 import outwatch._
 import outwatch.dsl._
 import cats.effect.{IO, SyncIO}
-import colibri.Subject
+import colibri.{Observable, Subject}
 import org.scalajs.dom.window.navigator
 
 import typings.diffMatchPatch.mod._
@@ -12,8 +12,7 @@ import scala.util.Success
 import scala.util.Failure
 import scala.util.Try
 import org.scalajs.dom.HTMLElement
-
-case class Conflict(base: String, baseName: String, a: String, aName: String, b: String, bName: String)
+import org.scalajs.dom.console
 
 object Main {
 
@@ -32,24 +31,20 @@ object Main {
   }
 
   def app = {
-    val dmp       = new diffMatchPatch();
-    val diff      = dmp.diff_main("dogs bark", "cats bark")
     val scrollPos = Subject.behavior(0.0)
 
-    val rawConflict = Subject.behavior("""<<<<<<< ours
-x = myNumber + foo
+    val rawConflict                                         = Subject.behavior("""<<<<<<< ours
+x = myNumber + foo - 200
 ||||||| base
-x = foo + myNumber
+x = foo + myNumber - 
 =======
-x = foo + otherNumber
+x = foo + otherNumber - 300
 >>>>>>> theirs
 """)
-    val conflict    = rawConflict.map(ConflictParser.apply)
-    val merged      = conflict.map {
-      _.map { conflict =>
-        val patchesA = dmp.patch_make(conflict.base, conflict.a)
-        val patchesB = dmp.patch_make(conflict.base, conflict.b)
-        (conflict, dmp.patch_apply(patchesA ++ patchesB, conflict.base)(0))
+    val conflict                                            = rawConflict.map(ConflictParser.apply)
+    val merged: Observable[Either[Any, (Conflict, String)]] = conflict.map {
+      _.flatMap { conflict =>
+        Merge.merge(conflict).map(conflict -> _)
       }
     }
 
@@ -66,7 +61,7 @@ x = foo + otherNumber
         ),
       ),
       merged.map {
-        case Right((conflict, mergedResult)) =>
+        case (Right((conflict, mergedResult)))                            =>
           div(
             div(
               cls := "flex",
@@ -75,7 +70,7 @@ x = foo + otherNumber
                 b(conflict.aName),
                 Some(conflict.a),
                 scrollPos,
-                colorClasses = "bg-blue-100 dark:bg-blue-900/50",
+                colorClasses = "bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 text-blue-800",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -89,7 +84,7 @@ x = foo + otherNumber
                 b(conflict.bName),
                 Some(conflict.b),
                 scrollPos,
-                colorClasses = "bg-violet-100 dark:bg-violet-900/50",
+                colorClasses = "bg-violet-100 dark:bg-violet-900/50 dark:text-violet-300 text-violet-800",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -130,7 +125,7 @@ x = foo + otherNumber
                 Diff(conflict.b, mergedResult),
                 VModifier(b(conflict.bName), " → ", "merged"),
                 scrollPos = scrollPos,
-                colorClasses = "bg-violet-100 dark:bg-violet-900/50",
+                colorClasses = "bg-violet-100 dark:bg-violet-900/50 dark:text-violet-300 text-violet-800",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
@@ -147,14 +142,87 @@ x = foo + otherNumber
                 Diff(conflict.a, mergedResult),
                 VModifier(b(conflict.aName), " → ", "merged"),
                 scrollPos = scrollPos,
-                colorClasses = "bg-blue-100 dark:bg-blue-900/50",
+                colorClasses = "bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 text-blue-800",
               )(
                 cls      := "flex-1 m-1",
                 minWidth := "0px",
               ),
             ),
           )
-        case Left(error)                     => div(error.getMessage)
+        case Left(Merge.Error.PatchOrderRelevant(merged1, merged2))       =>
+          div(
+            "Unresolvable Conflict",
+            div(
+              cls := "flex",
+              showCode(
+                Diff(
+                  merged1,
+                  merged2,
+                  cleanup = true,
+                  addStyle = cls    := "text-orange-500 dark:text-orange-400",
+                  removeStyle = cls := "text-sky-500 dark:text-sky-400",
+                ),
+                VModifier.empty,
+                scrollPos = scrollPos,
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+            ),
+          )
+        case Left(Merge.Error.ChangeNotPreserved(conflict, mergedResult)) =>
+          div(
+            "ChangeNotPreserved",
+            div(
+              cls := "flex",
+              showCode(
+                conflict.a,
+                b(conflict.aName),
+                Some(conflict.a),
+                scrollPos,
+                colorClasses = "bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 text-blue-800",
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+            ),
+            div(
+              cls := "flex",
+              showCode(
+                Diff(conflict.base, conflict.a),
+                VModifier(b(conflict.baseName), " → ", b(conflict.aName)),
+                scrollPos = scrollPos,
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+              showCode(
+                mergedResult,
+                "merged",
+                Some(mergedResult),
+                scrollPos = scrollPos,
+                colorClasses = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100 border-2 border-neutral",
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+            ),
+            div(
+              cls := "flex",
+              showCode(
+                Diff(conflict.b, mergedResult),
+                VModifier(b(conflict.bName), " → ", "merged"),
+                scrollPos = scrollPos,
+                colorClasses = "bg-violet-100 dark:bg-violet-900/50 dark:text-violet-300 text-violet-800",
+              )(
+                cls      := "flex-1 m-1",
+                minWidth := "0px",
+              ),
+            ),
+          )
+
+        case Left(error: String) => div(error)
+        case Left(other)         => div(other.toString)
       },
     )
   }
@@ -164,7 +232,7 @@ x = foo + otherNumber
     description: VModifier = VModifier.empty,
     codeStr: Option[String] = None,
     scrollPos: Subject[Double] = Subject.behavior(0.0),
-    colorClasses: String = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100",
+    colorClasses: String = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100 dark:text-slate-400 text-gray-800",
   ) = {
     div(
       div(

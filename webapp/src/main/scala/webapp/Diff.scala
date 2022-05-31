@@ -7,10 +7,16 @@ import typings.diffMatchPatch.mod._
 object Diff {
   val dmp = new diffMatchPatch();
 
-  def apply(original: String, result: String) = {
+  def apply(
+    original: String,
+    target: String,
+    cleanup: Boolean = true,
+    addStyle: VModifier = cls    := "text-green-500 dark:text-green-400",
+    removeStyle: VModifier = cls := "text-red-500 dark:text-red-400",
+  ) = {
     // https://github.com/google/diff-match-patch/wiki/API#diff_maintext1-text2--diffs
-    val diff = dmp.diff_main(original, result)
-    dmp.diff_cleanupSemantic(diff)
+    val diff = dmp.diff_main(original, target)
+    if (cleanup) dmp.diff_cleanupSemantic(diff)
 
     p(
       diff.map { part =>
@@ -20,8 +26,8 @@ object Diff {
         span(
           // showControlChars(str),
           str,
-          if (isAdded) (cls := "text-green-500 dark:text-green-400")
-          else if (isRemoved) (cls := "text-red-500 dark:text-red-400")
+          if (isAdded) addStyle
+          else if (isRemoved) removeStyle
           else VModifier.empty,
         ),
       },
