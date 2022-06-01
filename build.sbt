@@ -2,10 +2,10 @@ Global / onChangedBuildSource := IgnoreSourceChanges // not working well with we
 
 name                     := "Blend"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "3.1.1"
+ThisBuild / scalaVersion := "3.1.2"
 
 val versions = new {
-  val outwatch  = "1.0.0-RC6+2-6728c9c7-SNAPSHOT"
+  val outwatch  = "1.0.0-RC8"
   val funPack   = "0.2.0"
   val scalaTest = "3.2.11"
 }

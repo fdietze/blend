@@ -22,7 +22,7 @@ object Diff {
           str,
           if (isAdded) (cls := "text-green-500 dark:text-green-400")
           else if (isRemoved) (cls := "text-red-500 dark:text-red-400")
-          else VDomModifier.empty,
+          else VModifier.empty,
         ),
       },
     )

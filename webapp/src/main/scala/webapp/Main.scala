@@ -28,7 +28,7 @@ object Main {
     ).toOption.getOrElse(false)
 
   def main(args: Array[String]): Unit = {
-    OutWatch.renderInto[IO]("#app", app).unsafeRunSync()
+    Outwatch.renderInto[SyncIO]("#app", app).unsafeRunSync()
   }
 
   def app = {
@@ -99,7 +99,7 @@ x = foo + otherNumber
               cls := "flex",
               showCode(
                 Diff(conflict.base, conflict.a),
-                VDomModifier(b(conflict.baseName), " → ", b(conflict.aName)),
+                VModifier(b(conflict.baseName), " → ", b(conflict.aName)),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -117,7 +117,7 @@ x = foo + otherNumber
               ),
               showCode(
                 Diff(conflict.base, conflict.b),
-                VDomModifier(b(conflict.baseName), " → ", b(conflict.bName)),
+                VModifier(b(conflict.baseName), " → ", b(conflict.bName)),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -128,7 +128,7 @@ x = foo + otherNumber
               cls := "flex",
               showCode(
                 Diff(conflict.b, mergedResult),
-                VDomModifier(b(conflict.bName), " → ", "merged"),
+                VModifier(b(conflict.bName), " → ", "merged"),
                 scrollPos = scrollPos,
                 colorClasses = "bg-violet-100 dark:bg-violet-900/50",
               )(
@@ -137,7 +137,7 @@ x = foo + otherNumber
               ),
               showCode(
                 Diff(conflict.base, mergedResult),
-                VDomModifier(b(conflict.baseName), " → ", "merged"),
+                VModifier(b(conflict.baseName), " → ", "merged"),
                 scrollPos = scrollPos,
               )(
                 cls      := "flex-1 m-1",
@@ -145,7 +145,7 @@ x = foo + otherNumber
               ),
               showCode(
                 Diff(conflict.a, mergedResult),
-                VDomModifier(b(conflict.aName), " → ", "merged"),
+                VModifier(b(conflict.aName), " → ", "merged"),
                 scrollPos = scrollPos,
                 colorClasses = "bg-blue-100 dark:bg-blue-900/50",
               )(
@@ -160,8 +160,8 @@ x = foo + otherNumber
   }
 
   def showCode(
-    codeRendered: VDomModifier,
-    description: VDomModifier = VDomModifier.empty,
+    codeRendered: VModifier,
+    description: VModifier = VModifier.empty,
     codeStr: Option[String] = None,
     scrollPos: Subject[Double] = Subject.behavior(0.0),
     colorClasses: String = "bg-gray-100 dark:bg-gray-900 dark:text-slate-100",
@@ -184,7 +184,7 @@ x = foo + otherNumber
 
   def syncedScrollPos(scrollPos: Subject[Double]) = {
     var ignoreNextScrollEvent = false
-    VDomModifier(
+    VModifier(
       onScroll.filter { e =>
         val ignore = ignoreNextScrollEvent
         ignoreNextScrollEvent = false
@@ -194,8 +194,8 @@ x = foo + otherNumber
         // println(s"out: ${target.scrollLeft} / ${(target.scrollWidth - target.clientWidth + 1)}")
         target.scrollLeft / (target.scrollWidth - target.clientWidth + 1)
       } --> scrollPos,
-      managedElement.asHtml { target =>
-        scrollPos.foreach { pos =>
+      VModifier.managedElement.asHtml { target =>
+        scrollPos.unsafeForeach { pos =>
           val newScrollLeft = (target.scrollWidth - target.clientWidth + 1) * pos
           if (newScrollLeft != target.scrollLeft) {
             // println("SET " + newScrollLeft)
@@ -209,11 +209,11 @@ x = foo + otherNumber
   }
 
   def copyButton(value: String) = {
-    VDomModifier.ifTrue(canWriteClipboard)(
+    VModifier.ifTrue(canWriteClipboard)(
       button(
         title := "Copy to Clipboard",
         cls   := "cursor-pointer",
-        onClick.foreach {
+        onClick.foreach { _ =>
           navigator.clipboard.writeText(value)
         },
         "copy",
