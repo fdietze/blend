@@ -8,6 +8,9 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        scalaVersion: ["3.1.2"]
     runs-on: ubuntu-latest
 
     steps:
@@ -68,7 +71,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.2.5
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: webapp/target/scala-3.1.1/scalajs-bundler/main/dist # The folder the action should deploy.
+          folder: webapp/target/${{matrix.scalaVersion}}/scalajs-bundler/main/dist # The folder the action should deploy.
 
       # - name: Debug over SSH (tmate)
       #   # if: ${{ failure() }}
